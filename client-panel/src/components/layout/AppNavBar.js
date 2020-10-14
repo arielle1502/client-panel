@@ -1,13 +1,29 @@
 import React, { Fragment } from 'react';
 import { Nav, Navbar } from 'react-bootstrap';
+import { compose } from 'redux';
+import { connect } from 'react-redux';
+import { withFirestore } from 'react-redux-firebase';
+import { useHistory } from 'react-router-dom'
 
-const AppNavBar = () => {
+const AppNavBar = ({firebase, auth}) => {
+
+  const history = useHistory();
+
+  const logOut = e => {
+    console.log('logout!');
+    //log out from the database
+    firebase.auth().signOut().then(() => {
+      console.log('signed out');
+      history.push('/login');
+
+    }).catch((error) => {console.log('error: ', error)})
+  }
   
   const loggedIn = (
     <Fragment>
       <Nav.Link href="/">Dashboard</Nav.Link>
-      <Nav.Link href="/#!">Email</Nav.Link>
-      <Nav.Link href="/#!">Logout</Nav.Link>
+      <Nav.Link href="/#!">{auth.email}</Nav.Link>
+      <Nav.Link href="/#!" onClick={e => logOut(e)}>Logout</Nav.Link>
     </Fragment>
   );
   
@@ -21,12 +37,20 @@ const AppNavBar = () => {
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
         <Nav className="ml-auto">
-          { loggedIn }
-          { loggedOut }
+         { auth.uid !== undefined ? loggedIn : loggedOut }
+           
         </Nav>
       </Navbar.Collapse>
     </Navbar>
   )
 }
 
-export default AppNavBar;
+const enhance = compose(
+  withFirestore,
+  connect((state) => ({
+    auth: state.firebase.auth,
+    profile: state.firebase.profile
+  }))
+)
+
+export default enhance(AppNavBar);

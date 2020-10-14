@@ -39,6 +39,22 @@ const ClientDetails = (props) => {
   const balanceSubmit = e => {
     e.preventDefault();
     console.log("Submit")
+    const updClient = {
+      balance: parseFloat(balanceUpdateAmount)
+    }
+    console.log(updClient);
+    //update the balance in the databsse with the doc id supplied
+    firestore.collection('clients').doc(id).update(updClient)
+    .then(() => console.log('client balance updated'))
+  }
+
+  const onDeleteClick = (e) => {
+    console.log("oooopppsss... delete")
+    //delete clien tfrom the database
+    firestore.collection('clients').doc(id).delete()
+    .then(()=> console.log('client deleted'));
+    //then redirect back to the dashboard
+    history.push('/');
   }
 
   let balanceForm = null;
@@ -82,7 +98,8 @@ const ClientDetails = (props) => {
               <Button className='btn btn-info px-3'>
                 <Link to={`/client/edit/${client.id}`} className='btn text-light'>Edit</Link>
               </Button>
-              <Button className='btn btn-danger ml-1'>
+              <Button className='btn btn-danger ml-1'
+              onClick={e => onDeleteClick(e)}>
                 Delete
               </Button>
             </ButtonGroup>
